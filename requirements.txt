@@ -1,0 +1,12 @@
+APScheduler==3.6.3
+certifi==2020.11.8
+chardet==3.0.4
+idna==2.10
+imagesize==1.2.0
+instauto==0.0.17
+pycryptodomex==3.9.9
+pytz==2020.4
+requests==2.24.0
+six==1.15.0
+tzlocal==2.1
+urllib3==1.25.11
