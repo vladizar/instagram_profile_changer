@@ -2,3 +2,4 @@ account.py
 venv
 __pycache__
 .instauto.save
+.venv
