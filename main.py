@@ -1,9 +1,10 @@
 import instauto.api.actions.structs.profile as pr
+import instauto.api.actions.structs.post as ps
 import os
 
 from instauto.api.client import ApiClient
 from time import sleep
-from random import sample
+from random import sample, choice
 from pytz import timezone
 from datetime import datetime
 from account import LOGIN, PASSWORD
@@ -16,10 +17,10 @@ def main():
     except Exception:
         client = login()
 
-    # Change profile biography every hour and automatically relogin when cookies expire
+    # Change profile biography and picture every hour and automatically relogin when cookies expire
     while True:
         try:
-            change_biography(client)
+            change_profile(client)
         except Exception as e:
             print(e)
             client = login()
@@ -40,19 +41,44 @@ def login():
     return client
 
 
-def change_biography(client):
+def change_profile(client):
     # Calculate delay (next update time - current time + 2 seconds (for confidence))
     # Just using sleep(3600) doesn't work because sleep function isn't really sleeping exactly 3600 seconds (1 hour), but a bit longer.
     # So the next update time is moved further a little. After a few days running, the delay becomes really long (several minutes) and still grows.
-    # That's why we need to calculate the delay before each biography update.
+    # That's why we need to calculate the delay before each profile update.
     current_time = datetime.utcnow()
     update_time = current_time.replace(hour=(current_time.hour + 1) % 24, minute=0, second=0, microsecond=0)
     delay = (update_time - current_time).seconds + 2
+    
+    # Change profile biography and picture
+    change_biography(client)
+    change_picture(client)
+    
+    # Wait one hour for next update
+    sleep(delay)
 
-    # Update profile biography and wait 1 hour till next update
+
+def change_picture(client):
+    # Get all pictures from profile_pics directory
+    pictures = os.listdir('./profile_pics')
+    
+    # Choose one of them randomly and store it's relative path
+    path = f'./profile_pics/{choice(pictures)}'
+    
+    # Code from 'https://github.com/stanvanrooy/instauto/blob/master/examples/api/profile/update_picture.py'
+    # Updates profile picture with given picture path without any side effects
+    post = ps.PostNull(path=path)
+    resp = client.post_post(post, 80)
+
+    upload_id = resp.json()['upload_id']
+    p = pr.SetPicture(upload_id=upload_id)
+    client.profile_set_picture(p)
+
+
+def change_biography(client):
+    # Update profile biography
     obj = pr.SetBiography(get_biography_text())
     client.profile_set_biography(obj)
-    sleep(delay)
 
 
 def get_biography_text():
