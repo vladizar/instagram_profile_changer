@@ -7,15 +7,28 @@ from datetime import datetime
 from account import LOGIN, PASSWORD
 
 def main():
-    if os.path.isfile('./.instauto.save'):
+    try:
         client = ApiClient.initiate_from_file('./.instauto.save')
-    else:
-        client = ApiClient(user_name=LOGIN, password=PASSWORD)
-        client.login()
-        client.save_to_disk('./.instauto.save')
+    except Exception:
+        client = login()
 
     while True:
-        change_biography(client)
+        try:
+            change_biography(client)
+        except Exception:
+            client = login()
+
+
+def login():
+    client = ApiClient(user_name=LOGIN, password=PASSWORD)
+    client.login()
+
+    if os.path.isfile('./.instauto.save'):
+        os.remove('./.instauto.save')
+
+    client.save_to_disk('./.instauto.save')
+
+    return client
 
 
 def change_biography(client):
