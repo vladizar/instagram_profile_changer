@@ -10,6 +10,9 @@ from datetime import datetime
 from account import LOGIN, PASSWORD
 
 
+CURRENT_PICTURE = None
+
+
 def main():
     # Try to login using cookies stored in .instauto.save file
     try:
@@ -59,11 +62,17 @@ def change_profile(client):
 
 
 def change_picture(client):
+    global CURRENT_PICTURE
+
     # Get all pictures from profile_pics directory
     pictures = os.listdir('./profile_pics')
     
     # Choose one of them randomly and store it's relative path
-    path = f'./profile_pics/{choice(pictures)}'
+    while True:
+        path = f'./profile_pics/{choice(pictures)}'
+
+        if path != CURRENT_PICTURE:
+            break
     
     # Code from 'https://github.com/stanvanrooy/instauto/blob/master/examples/api/profile/update_picture.py'
     # Updates profile picture with given picture path without any side effects
@@ -73,6 +82,8 @@ def change_picture(client):
     upload_id = resp.json()['upload_id']
     p = pr.SetPicture(upload_id=upload_id)
     client.profile_set_picture(p)
+
+    CURRENT_PICTURE = path
 
 
 def change_biography(client):
