@@ -66,8 +66,10 @@ def change_picture(client):
 
     # Get all pictures from profile_pics directory
     pictures = os.listdir('./profile_pics')
+    if len(pictures) == 1:
+        return
     
-    # Choose one of them randomly and store it's relative path
+    # Choose one of them (but not the current one) randomly and store it's relative path
     while True:
         path = f'./profile_pics/{choice(pictures)}'
 
