@@ -4,13 +4,14 @@ import os
 
 from instauto.api.client import ApiClient
 from time import sleep
-from random import sample, choice
+from random import sample, choices
 from pytz import timezone
 from datetime import datetime
 from account import LOGIN, PASSWORD
 
 
 CURRENT_PICTURE = None
+PICTURE_WEIGHTS = [1, 1, 1, 3]
 
 
 def main():
@@ -66,15 +67,18 @@ def change_picture(client):
 
     # Get all pictures from profile_pics directory
     pictures = os.listdir('./profile_pics')
-    if len(pictures) == 1:
+    if len(pictures) < 2:
         return
     
-    # Choose one of them (but not the current one) randomly and store it's relative path
-    while True:
-        path = f'./profile_pics/{choice(pictures)}'
+    # Choose one of them (but not the current one) randomly considering each picture weights and store it's relative path
+    picture = choices(pictures, weights=PICTURE_WEIGHTS)
 
-        if path != CURRENT_PICTURE:
-            break
+    if picture == CURRENT_PICTURE:
+        picture_index = picture.split('.')[0]
+        new_picture_index = str((int(picture_index) + 1) % len(pictures))
+        picture = picture.replace(picture_index, new_picture_index)
+    
+    path = os.path.join('./profile_pics', picture)
     
     # Code from 'https://github.com/stanvanrooy/instauto/blob/master/examples/api/profile/update_picture.py'
     # Updates profile picture with given picture path without any side effects
@@ -85,7 +89,7 @@ def change_picture(client):
     p = pr.SetPicture(upload_id=upload_id)
     client.profile_set_picture(p)
 
-    CURRENT_PICTURE = path
+    CURRENT_PICTURE = picture
 
 
 def change_biography(client):
