@@ -71,7 +71,7 @@ def change_picture(client):
         return
     
     # Choose one of them (but not the current one) randomly considering each picture weights and store it's relative path
-    picture = choices(pictures, weights=PICTURE_WEIGHTS)
+    picture = choices(pictures, weights=PICTURE_WEIGHTS)[0]
 
     if picture == CURRENT_PICTURE:
         picture_index = picture.split('.')[0]
