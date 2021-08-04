@@ -66,7 +66,7 @@ def change_picture(client):
     global CURRENT_PICTURE
 
     # Get all pictures from profile_pics directory
-    pictures = os.listdir('./profile_pics')
+    pictures = sorted(os.listdir('./profile_pics'))
     if len(pictures) < 2:
         return
     
